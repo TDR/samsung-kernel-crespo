@@ -483,7 +483,7 @@ retry:
  *
  */
 
-#define WAIT_TIMEOUT                (HZ*5)
+#define WAIT_TIMEOUT                (HZ*10)
 
 void modem_request_sem(struct modemctl *mc)
 {
@@ -565,7 +565,7 @@ int modem_acquire_mmio(struct modemctl *mc)
 {
 	if (modem_request_mmio(mc) == 0) {
 		int ret = wait_event_interruptible_timeout(
-			mc->wq, mmio_owner_p(mc), 5 * HZ);
+			mc->wq, mmio_owner_p(mc), 10 * HZ);
 		if (ret <= 0) {
 			modem_release_mmio(mc, 0);
 			if (ret == 0) {
@@ -838,7 +838,10 @@ static long modemctl_ioctl(struct file *filp,
 		ret = modem_start(mc, 0);
 		break;
 	case IOCTL_MODEM_RAMDUMP:
-		ret = modem_start(mc, 1);
+		//ret = modem_start(mc, 1);
+		ret = modem_reset(mc);
+		MODEM_COUNT(mc,resets);
+		ret = modem_start(mc, 0);
 		break;
 	case IOCTL_MODEM_OFF:
 		ret = modem_off(mc);
