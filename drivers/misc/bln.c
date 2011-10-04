@@ -23,8 +23,8 @@ static bool bln_ongoing = false; /* ongoing LED Notification */
 static int bln_blink_state = 0;
 static bool bln_suspended = false; /* is system suspended */
 static struct bln_implementation *bln_imp = NULL;
-static bool in_kernel_blink = false;
-static uint32_t blink_count;
+static bool in_kernel_blink = true;
+static uint32_t blink_count, blink_skip;
 
 static struct wake_lock bln_wake_lock;
 
@@ -35,7 +35,8 @@ static void blink_callback(struct work_struct *blink_work);
 static DECLARE_WORK(blink_work, blink_callback);
 
 #define BLINK_INTERVAL 500 /* on / off every 500ms */
-#define MAX_BLINK_COUNT 600 /* 10 minutes */
+#define BLINK_ON_CYCLE 4 /* on only once every 4 times */
+#define MAX_BLINK_COUNT 14400 /* 120 minutes */
 #define BACKLIGHTNOTIFICATION_VERSION 9
 
 static void bln_enable_backlights(void)
@@ -78,6 +79,7 @@ static void enable_led_notification(void)
 		blink_timer.expires = jiffies +
 				msecs_to_jiffies(BLINK_INTERVAL);
 		blink_count = MAX_BLINK_COUNT;
+		blink_skip = BLINK_ON_CYCLE;
 		add_timer(&blink_timer);
 	}
 
@@ -262,14 +264,21 @@ static void blink_callback(struct work_struct *blink_work)
 {
 	if (--blink_count == 0) {
 		pr_info("%s: notification timed out\n", __FUNCTION__);
-		bln_enable_backlights();
+		//bln_enable_backlights();
+		bln_disable_backlights();
 		del_timer(&blink_timer);
 		wake_unlock(&bln_wake_lock);
 		return;
 	}
 
 	if (bln_blink_state)
-		bln_enable_backlights();
+	{
+		if (--blink_skip == 0)
+		{	
+			bln_enable_backlights();
+			blink_skip = BLINK_ON_CYCLE;
+		}
+	}
 	else
 		bln_disable_backlights();
 

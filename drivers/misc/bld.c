@@ -21,7 +21,7 @@ static bool backlight_dimmed = false;
 
 static bool device_suspended = false;
 
-static unsigned int dimmer_delay = 5000;
+static unsigned int dimmer_delay = 15000;
 
 static void bld_toggle_backlights(struct work_struct * dimmer_work);
 
