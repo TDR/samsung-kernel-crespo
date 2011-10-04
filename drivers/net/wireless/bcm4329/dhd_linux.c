@@ -1929,6 +1929,12 @@ dhd_open(struct net_device *net)
 	wl_control_wl_start(net);
 
 	ifidx = dhd_net2idx(dhd, net);
+	if (ifidx < 0)
+	{
+		DHD_ERROR(("%s: Error: invalid ifidx\n", __FUNCTION__));
+		return -1;
+	}
+	
 	DHD_TRACE(("%s: ifidx %d\n", __FUNCTION__, ifidx));
 
 	if (ifidx == DHD_BAD_IF)
