@@ -295,7 +295,7 @@ static struct s3cfb_lcd s6e63m0 = {
 	.p_width = 52,
 	.p_height = 86,
 	.bpp = 24,
-	.freq = 60,
+	.freq = 72,
 
 	.timing = {
 		.h_fp = 16,
@@ -430,8 +430,20 @@ static struct s5p_media_device herring_media_devs[] = {
 #ifdef CONFIG_CPU_FREQ
 static struct s5pv210_cpufreq_voltage smdkc110_cpufreq_volt[] = {
 	{
+		.freq	= 1400000,
+		.varm	= 1475000,
+		.vint	= 1200000,
+	}, {
+		.freq	= 1280000,
+		.varm	= 1400000,
+		.vint	= 1175000,
+	}, {
+		.freq	= 1200000,
+		.varm	= 1350000,
+		.vint	= 1150000,
+	}, {
 		.freq	= 1000000,
-		.varm	= 1275000,
+		.varm	= 1250000,
 		.vint	= 1100000,
 	}, {
 		.freq	=  800000,
@@ -708,7 +720,7 @@ static struct regulator_init_data herring_buck1_data = {
 		.valid_ops_mask	= REGULATOR_CHANGE_VOLTAGE |
 				  REGULATOR_CHANGE_STATUS,
 		.state_mem	= {
-			.uV	= 1472000,
+			.uV	= 1500000,
 			.mode	= REGULATOR_MODE_NORMAL,
 			.disabled = 1,
 		},
@@ -1095,8 +1107,8 @@ static struct max8998_platform_data max8998_pdata = {
 	.regulators     = herring_regulators,
 	.charger        = &herring_charger,
 	/* Preloads must be in increasing order of voltage value */
-	.buck1_preload	= {950000, 1050000, 1200000, 1275000},
-	.buck2_preload	= {1000000, 1100000},
+	.buck1_preload	= {950000, 1200000, 1250000, 1475000},
+	.buck2_preload	= {1000000, 1200000},
 	.set1_gpio	= GPIO_BUCK_1_EN_A,
 	.set2_gpio	= GPIO_BUCK_1_EN_B,
 	.set3_gpio	= GPIO_BUCK_2_EN,
