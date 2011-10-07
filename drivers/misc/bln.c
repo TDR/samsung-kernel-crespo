@@ -35,7 +35,7 @@ static void blink_callback(struct work_struct *blink_work);
 static DECLARE_WORK(blink_work, blink_callback);
 
 #define BLINK_INTERVAL 500 /* on / off every 500ms */
-#define BLINK_ON_CYCLE 4 /* on only once every 4 times */
+#define BLINK_ON_CYCLE 3 /* on only once every 3 seconds */
 #define MAX_BLINK_COUNT 14400 /* 120 minutes */
 #define BACKLIGHTNOTIFICATION_VERSION 9
 
@@ -72,7 +72,7 @@ static void enable_led_notification(void)
 	if (!bln_enabled)
 		return;
 
-	if (in_kernel_blink) {
+	if (in_kernel_blink && !timer_pending(&blink_timer)) {
 		wake_lock(&bln_wake_lock);
 
 		/* Start timer */
