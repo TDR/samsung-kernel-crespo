@@ -223,8 +223,8 @@ static void cpufreq_debug_disable_ratelimit(void)
 	spin_unlock_irqrestore(&disable_ratelimit_lock, flags);
 }
 
-void cpufreq_debug_printk(unsigned int type, const char *prefix,return sprintf(buf, "1400mhz: %d mV\\n1280mhz:
-			const char *fmt, ...)
+void cpufreq_debug_printk(unsigned int type, const char *prefix,
+        const char *fmt, ...)
 {
 	char s[256];
 	va_list args;
@@ -411,21 +411,14 @@ static int cpufreq_parse_governor(char *str_governor, unsigned int *policy,
 		t = __find_governor(str_governor);
 
 		if (t == NULL) {
-			char *name = kasprintf(GFP_KERNEL, "cpufreq_%s",
-								str_governor);
+			int ret;
 
-			if (name) {
-				int ret;
+			mutex_unlock(&cpufreq_governor_mutex);
+			ret = request_module("cpufreq_%s", str_governor);
+			mutex_lock(&cpufreq_governor_mutex);
 
-				mutex_unlock(&cpufreq_governor_mutex);
-				ret = request_module("%s", name);
-				mutex_lock(&cpufreq_governor_mutex);
-
-				if (ret == 0)
-					t = __find_governor(str_governor);
-			}
-
-			kfree(name);
+			if (ret == 0)
+				t = __find_governor(str_governor);
 		}
 
 		if (t != NULL) {
@@ -663,13 +656,14 @@ static ssize_t store_UV_mV_table(struct cpufreq_policy *policy,
 	unsigned int ret = -EINVAL;
 	int i = 0;
 	ret = sscanf(buf, "%d %d %d %d %d %d %d %d", &exp_UV_mV[0], &exp_UV_mV[1], &exp_UV_mV[2], &exp_UV_mV[3], &exp_UV_mV[4], &exp_UV_mV[5], &exp_UV_mV[6], &exp_UV_mV[7]);
-	if(ret != 9) {
+	if(ret != 7) {
 		return -EINVAL;
 	}
 	else
 		for( i = 0; i < 8; i++ )
 		{
-		   exp_UV_mV[i] *= 1000;
+		    if( i != 3 )
+		        exp_UV_mV[i] *= 1000;
 		}
 		return count;
 }

@@ -770,7 +770,9 @@ static int __init s5pv210_cpufreq_driver_init(struct cpufreq_policy *policy)
 static int s5pv210_cpufreq_notifier_event(struct notifier_block *this,
 		unsigned long event, void *ptr)
 {
+    static int max, min;
 	int ret;
+    struct cpufreq_policy *policy = cpufreq_cpu_get(0);
 
 	/* Sleep frequency fix by coolbho3000 */
 	static int max, min;
@@ -778,22 +780,20 @@ static int s5pv210_cpufreq_notifier_event(struct notifier_block *this,
 
 	switch (event) {
 	case PM_SUSPEND_PREPARE:
-		max = policy->max;
-		min = policy->min;
-		policy->max = SLEEP_FREQ;
-		if (min > SLEEP_FREQ) // Check against high min frequencies
-			policy->min = SLEEP_FREQ;
-		ret = cpufreq_driver_target(policy, SLEEP_FREQ,
+        max = policy->max;
+        min = policy->min;
+        policy->max = policy->min = SLEEP_FREQ;
+		ret = cpufreq_driver_target(cpufreq_cpu_get(0), SLEEP_FREQ,
 				DISABLE_FURTHER_CPUFREQ);
 		if (ret < 0)
 			return NOTIFY_BAD;
 		return NOTIFY_OK;
 	case PM_POST_RESTORE:
 	case PM_POST_SUSPEND:
+		cpufreq_driver_target(cpufreq_cpu_get(0), SLEEP_FREQ,
+				ENABLE_FURTHER_CPUFREQ);
 		policy->max = max; 
 		policy->min = min;
-		cpufreq_driver_target(policy, SLEEP_FREQ,
-				ENABLE_FURTHER_CPUFREQ); // Restore policy
 		return NOTIFY_OK;
 	}
 	return NOTIFY_DONE;
