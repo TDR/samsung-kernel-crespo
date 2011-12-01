@@ -774,10 +774,6 @@ static int s5pv210_cpufreq_notifier_event(struct notifier_block *this,
 	int ret;
     struct cpufreq_policy *policy = cpufreq_cpu_get(0);
 
-	/* Sleep frequency fix by coolbho3000 */
-	static int max, min;
-	struct cpufreq_policy *policy = cpufreq_cpu_get(0);
-
 	switch (event) {
 	case PM_SUSPEND_PREPARE:
         max = policy->max;
